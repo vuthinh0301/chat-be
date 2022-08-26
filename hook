@@ -1,0 +1,14 @@
+[
+  {
+    "id": "redeploy",
+    "execute-command": "/root/projects/webhook/redeploy.sh",
+    "command-working-directory": "/root/projects/webhook",
+    "response-message": "Redeploying EduCMS API.",
+    "pass-arguments-to-command": [
+      {
+        "source": "query",
+        "name": "version"
+      }
+    ]
+  }
+]
