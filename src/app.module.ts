@@ -18,10 +18,6 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './modules/auth/jwt-auth-guard';
 import { CacheModule as CacheCustomModule } from './modules/cache/cache.module';
 import { TokenBlacklistMiddleware } from './middlewares/token-blacklist.middleware';
-import { RolesGuard } from './guards/roles.guard';
-import { CaslModule } from './modules/casl/casl.module';
-import { RolesModule } from './modules/roles/roles.module';
-import { PermissionsModule } from './modules/permissions/permissions.module';
 import { FilesModule } from './modules/files/files.module';
 import { MailModule } from './modules/mail/mail.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
@@ -62,9 +58,6 @@ import { MessagesModule } from './modules/messages/messages.module';
     AuthModule,
     UsersModule,
     CacheCustomModule,
-    CaslModule,
-    RolesModule,
-    PermissionsModule,
     FilesModule,
     MailModule,
     ListenersModule,
@@ -79,10 +72,6 @@ import { MessagesModule } from './modules/messages/messages.module';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
     },
   ],
 })

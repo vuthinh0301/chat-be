@@ -3,7 +3,6 @@ import mongoose, { Document, ObjectId } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { UserStatus } from './enum/user.enum';
 import { ApiProperty } from '@nestjs/swagger';
-import { Role } from '@/modules/roles/roles.schema';
 import {
   IsEmail,
   IsEnum,
@@ -52,19 +51,10 @@ export class User {
   @Prop({ type: String, required: true })
   password: string;
 
-  @ApiProperty({ enum: UserStatus, default: UserStatus.active })
+  @ApiProperty({ enum: UserStatus, default: UserStatus.inactive })
   @IsEnum(UserStatus)
-  @Prop({ required: true, enum: UserStatus, default: UserStatus.active })
+  @Prop({ required: true, enum: UserStatus, default: UserStatus.inactive })
   status: UserStatus;
-
-  @IsNotEmpty()
-  @ApiProperty({ type: String, required: true })
-  @Prop({
-    required: true,
-    type: mongoose.Schema.Types.ObjectId,
-    ref: Role.name,
-  })
-  role: Role | string;
 
   @IsOptional()
   @IsNumber()

@@ -3,6 +3,9 @@ import { Document } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import * as mongoose from 'mongoose';
 import { User } from '@/modules/users/user.schema';
+import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
+import { Message } from '@/modules/messages/message.schema';
+import { Optional } from '@nestjs/common';
 
 export type ConversationDocument = Conversation & Document;
 
@@ -17,17 +20,37 @@ export class Conversation {
   @ApiProperty({ type: String })
   _id: string | mongoose.Schema.Types.ObjectId;
 
-  @Prop()
+  @ApiProperty({ type: Boolean })
+  @IsNotEmpty()
+  @IsBoolean()
+  @Prop({ type: Boolean, default: false })
   is_group: boolean;
 
-  @Prop()
+  @ApiProperty({ type: String })
+  @IsString()
+  @Optional()
+  @Prop({ type: String, default: '' })
   name: string;
 
-  @Prop()
-  members: User[];
+  @ApiProperty()
+  @IsNotEmpty()
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    required: true,
+  })
+  members: User[] | string[];
 
-  @Prop()
-  last_message: string;
+  @ApiProperty({ type: String })
+  @Optional()
+  @IsNotEmpty()
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Message' })
+  last_message: Message | string;
+
+  @Prop({ type: Number })
+  created_at: number;
+
+  @Prop({ type: Number })
+  updated_at: number;
 }
 
 export const ConversationSchema = SchemaFactory.createForClass(Conversation);

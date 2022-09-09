@@ -8,7 +8,6 @@ import {
   Post,
   Query,
   Request,
-  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import {
@@ -30,9 +29,6 @@ import {
   AuthApiError,
   PublicApiError,
 } from '@/decorators/api-error-response.decorator';
-import { PoliciesGuard } from '@/guards/policies.guard';
-import { CheckPermissions } from '@/decorators/check-policies.decorator';
-import { PermissionAction } from '@/enums/permission-action.enum';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
@@ -65,8 +61,6 @@ export class UsersController {
     return await this.usersService.me(req.user._id);
   }
 
-  @UseGuards(PoliciesGuard)
-  @CheckPermissions([PermissionAction.Read, User.name])
   @PaginationResponse(User)
   @ApiOperation({ summary: 'User list with filter' })
   @AuthApiError()
@@ -79,8 +73,6 @@ export class UsersController {
     return data;
   }
 
-  @UseGuards(PoliciesGuard)
-  @CheckPermissions([PermissionAction.Read, User.name])
   @ApiOkResponse({ type: User })
   @ApiOperation({ summary: 'Get a user' })
   @AuthApiError()
@@ -92,8 +84,6 @@ export class UsersController {
     return data;
   }
 
-  @UseGuards(PoliciesGuard)
-  @CheckPermissions([PermissionAction.Update, User.name])
   @ApiOkResponse({ type: User })
   @AuthApiError()
   @ApiOperation({ summary: 'Update a user profile' })
@@ -109,8 +99,6 @@ export class UsersController {
     return data;
   }
 
-  @UseGuards(PoliciesGuard)
-  @CheckPermissions([PermissionAction.Update, User.name])
   @ApiOkResponse({ type: User })
   @AuthApiError()
   @ApiOperation({ summary: 'Update a user' })
@@ -124,13 +112,12 @@ export class UsersController {
     return data;
   }
 
-  @UseGuards(PoliciesGuard)
-  @CheckPermissions([PermissionAction.Create, User.name])
   @ApiCreatedResponse({ type: User })
   @ApiOperation({ summary: 'Create a user' })
   @AuthApiError()
   @Post()
   async create(@Request() req, @Body() user: CreateUserDto) {
+    console.log(req.user);
     const data = await this.usersService.create(req.user, user);
     return data;
   }
@@ -146,8 +133,6 @@ export class UsersController {
     await this.usersService.changePassword(req.user, changePasswordDto);
   }
 
-  @UseGuards(PoliciesGuard)
-  @CheckPermissions([PermissionAction.Manage, User.name])
   @ApiNoContentResponse()
   @AuthApiError()
   @ApiOperation({ summary: 'Reset password' })
@@ -184,8 +169,6 @@ export class UsersController {
     return { data };
   }
 
-  @UseGuards(PoliciesGuard)
-  @CheckPermissions([PermissionAction.Delete, User.name])
   @ApiNoContentResponse()
   @ApiOperation({ summary: 'Delete a user' })
   @AuthApiError()

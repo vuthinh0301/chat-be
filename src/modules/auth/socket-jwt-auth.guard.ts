@@ -20,18 +20,17 @@ export class SocketJwtAuthGuard extends AuthGuard('socket-jwt') {
       throw new WsException('Missing token');
     }
 
-    context.switchToWs().getData().user = { name: 'HungPV' };
-    return true;
+    // context.switchToWs().getData().user = { name: 'HungPV' };
+    // return true;
 
-    // const user = await this.authService.verifyToken(token);
-    //
-    // if (user) {
-    //   if (context.switchToWs().getData()) {
-    //     context.switchToWs().getData().user = user;
-    //   }
-    //
-    //   return true;
-    // }
+    const user = await this.authService.verifyToken(token);
+
+    if (user) {
+      context.switchToWs().getData().user = user;
+    }
+    if (context.switchToWs().getData()) {
+      return true;
+    }
 
     throw new WsException('Token invalid');
   }

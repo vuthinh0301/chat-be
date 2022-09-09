@@ -1,5 +1,6 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { DATA_REFERENCE, ERROR_CODES } from '@/constants/error-codes.constant';
+import { constants } from 'http2';
 
 export const throwDataReferenceException = () => {
   throw new BadRequestException({

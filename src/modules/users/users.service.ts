@@ -26,14 +26,11 @@ import { RegisterDto } from '../auth/dto/register.dto';
 import { PaginationRequestFullDto } from '@/dtos/pagination-request.dto';
 import { SortType } from '@/enums/sort.enum';
 import { PaginationDto } from '@/dtos/pagination-response.dto';
-import { Permission } from '@/modules/permissions/permissions.schema';
-import { RolesService } from '@/modules/roles/roles.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import * as moment from 'moment';
-import { LEARNER } from '@/constants/roles';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { USER_FORGOT_PASSWORD, USER_REGISTER } from '@/constants/events';
 import { UserRegisterEvent } from '@/events/user/user-register.event';
@@ -47,8 +44,6 @@ import { UpdateUserProfile } from '@/modules/users/dto/update-user-profile';
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
-    @Inject(forwardRef(() => RolesService))
-    private rolesService: RolesService,
     private eventEmitter: EventEmitter2,
   ) {}
 
@@ -131,7 +126,6 @@ export class UsersService {
   }
 
   async register(user: RegisterDto): Promise<User> {
-    const leanerRole = await this.rolesService.findByName(LEARNER);
     const code = uuid();
 
     const newUser = await this.userModel.create({
@@ -140,7 +134,6 @@ export class UsersService {
       status: UserStatus.inactive,
       active_code: code,
       active_code_expired: moment().add(24, 'hours').valueOf(),
-      role: leanerRole._id,
     });
 
     if (newUser) {
@@ -180,7 +173,7 @@ export class UsersService {
       throwBadRequest(USER_ALREADY_ACTIVE);
     }
 
-    if (user.status === UserStatus.blocked) {
+    if (user.status === UserStatus.inactive) {
       throwBadRequest(USER_ALREADY_BLOCKED);
     }
 
@@ -233,22 +226,6 @@ export class UsersService {
     };
   }
 
-  async findAllPermissionsOfUser(
-    userId: string | mongoose.Schema.Types.ObjectId,
-  ): Promise<Permission[]> {
-    const user = await this.userModel.findById(userId);
-
-    if (user) {
-      const permissions = await this.rolesService.findAllPermissionOfRole(
-        user.role as string,
-      );
-
-      return permissions;
-    }
-
-    return [];
-  }
-
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.userModel.findById(id);
 
@@ -285,11 +262,13 @@ export class UsersService {
   }
 
   async create(currentUser: User, user: CreateUserDto) {
+    console.log(currentUser);
     const newUser = await this.userModel.create({
       ...user,
       created_by: currentUser._id,
     });
 
+    console.log(newUser);
     return newUser;
   }
 
@@ -329,14 +308,7 @@ export class UsersService {
   }
 
   async me(userId) {
-    const user = await this.userModel.findById(userId).populate({
-      path: 'role',
-      select: '_id name',
-      populate: {
-        path: 'permissions',
-        select: '-created_at -updated_at',
-      },
-    });
+    const user = await this.userModel.findById(userId);
 
     return user;
   }

@@ -9,7 +9,6 @@ export class CreateUserDto extends PickType(User, [
   'password',
   'full_name',
   'status',
-  'role',
   'date_of_birth',
 ] as const) {
   @IsNotEmpty()
